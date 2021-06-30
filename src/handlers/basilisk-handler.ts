@@ -153,7 +153,6 @@ const upsertIncentive = async (incentive) => {
 }
 
 const calculateIncentives = (
-    
     blockNum, 
     siblingCrowdloanCandidates, 
     siblingBidCandidates,
