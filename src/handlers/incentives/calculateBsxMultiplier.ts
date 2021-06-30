@@ -3,12 +3,12 @@ import linearScale from 'simple-linear-scale'
 
 export const calculateBsxMultiplier = (
     currentBlockNum, 
-    isRightBeforeTargetAuction,
+    isBeforeTargetAuction,
     currentAuctionClosingStart,
     currentAuctionClosingEnd,
 ) => {
     // if we're in targetAuctionId - 1, return full bsx multiplier
-    if (isRightBeforeTargetAuction) return incentivesConfig.bsx.scale.rewardMultiplier.min;
+    if (isBeforeTargetAuction) return incentivesConfig.bsx.scale.rewardMultiplier.min;
     
     /**
      * Linear scale used to determine the reward multiplier
@@ -34,5 +34,8 @@ export const calculateBsxMultiplier = (
      * from currentAuctionClosingStart to currentAuctionClosingEnd
      * using the currentBlockNum
      */
-    return bsxMultiplierScale(currentBlockNum)
+    const bsxMultiplier = bsxMultiplierScale(currentBlockNum);
+    logger.info(`BSX multiplier for ${currentBlockNum} is ${bsxMultiplier}`)
+
+    return bsxMultiplier
 }

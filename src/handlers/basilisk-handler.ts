@@ -16,12 +16,13 @@ import { calculateBsxMultiplier } from "./incentives/calculateBsxMultiplier";
 // for testing purposes only
 const karuraParaId = "2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK"
 const moonriverParaId = "2023-FFuCbRwsDTkj1cc2w6dvBmXvumyoZR6QgfAv1LwL3kBgmbX"
+const shidenParaID = "2007-Ekf4HssuTpYjmUEvzy9AAFuqpUcNm9AAkrMF1stTU6Mo1hR-0"
 // const basiliskParaId = ""
 
 // configuration
 const aggregationDuration = 50;
 // TODO: replace with BSX parachain ID
-const ownParachainId = moonriverParaId
+const ownParachainId = shidenParaID
 // TODO: replace with 4
 const targetAuctionId = "2" // it's a string in the DB, don't ask why
 
@@ -145,7 +146,7 @@ const getSiblingBidCandidatesByAuctionId = async (auctionId) => {
 }
 
 const upsertIncentive = async (incentive) => {
-    const incentiveId = incentive.blockNum;
+    const incentiveId = `${incentive.blockNum}`;
     await upsert('Incentive', incentiveId, {
         id: incentiveId,
         ...incentive
@@ -157,7 +158,7 @@ const calculateIncentives = (
     siblingCrowdloanCandidates, 
     siblingBidCandidates,
     ownCrowdloanRaised,
-    ownCrowdloanStartBlockNum,
+    currentAuctionId,
     currentAuction,
     isSignificant
 ) => async (
@@ -180,7 +181,7 @@ const calculateIncentives = (
 
     const auctionClosingStart = ((currentAuction && currentAuction.closingStart) || 0)
     const auctionClosingEnd = ((currentAuction && currentAuction.closingEnd) || 0)
-    const isRightBeforeTargetAuction = parseInt(currentAuction.id) < (parseInt(targetAuctionId) - 1)
+    const isBeforeTargetAuction = currentAuctionId < parseInt(targetAuctionId)
 
     // hdxMultiplier a.k.a. hdxBonus
     const hdxMultiplier = calculateHdxMultiplier(
@@ -190,7 +191,7 @@ const calculateIncentives = (
     
     const bsxMultiplier = calculateBsxMultiplier(
         blockNum,
-        isRightBeforeTargetAuction,
+        isBeforeTargetAuction,
         auctionClosingStart,
         auctionClosingEnd
     );
@@ -199,8 +200,8 @@ const calculateIncentives = (
     await upsertIncentive({
         blockNum,
         siblingParachainId,
-        bsxMultiplier: bsxMultiplier,
-        hdxBonus: hdxMultiplier,
+        bsxMultiplier: `${bsxMultiplier}`,
+        hdxBonus: `${hdxMultiplier}`,
         significant: isSignificant
     })
 }
@@ -229,20 +230,21 @@ export const determineIncentives = async (block: SubstrateBlock) => {
     const ownCrowdloans = (await Crowdloan.getByParachainId(ownParachainId)) || [];
     const ownCrowdloan = ownCrowdloans && ownCrowdloans[0];
     const ownCrowdloanRaised = (ownCrowdloan && ownCrowdloan.raised) || 0;
-
+    
     // Our crowdloan does not exist yet, or has already won then no incentives apply
     if (!ownCrowdloan || (ownCrowdloan && ownCrowdloan.status == "Won")) return;
+
+    logger.info("ownCrowdloan has been started")
 
     const currentAuction = ((await Auction.getByOngoing(true)) || [])[0];
     const currentAuctionId = (currentAuction && currentAuction.id) || "0";
 
     // if current auction is not target auction - 1 or newer, no incentives apply
-    if (parseInt(currentAuctionId) < (parseInt(targetAuctionId) - 1)) return;
+    // if (parseInt(currentAuctionId) < (parseInt(targetAuctionId) - 1)) return;
+    logger.info(`Current auction is ${currentAuctionId}, target auction is ${targetAuctionId}`)
 
     const siblingCrowdloanCandidates = (await getSiblingCrowdloanCandidates()) || [];
     const siblingBidCandidates = (await getSiblingBidCandidatesByAuctionId(currentAuctionId)) || [];
-
-    const ownCrowdloanStartBlockNum = ownCrowdloan.blockNum || 0;
 
     // Once we've gathered sibling parachain candidates, we can calculate incentives relative to our own valuation
     const calculateFinalIncentives = calculateIncentives(
@@ -250,7 +252,7 @@ export const determineIncentives = async (block: SubstrateBlock) => {
         siblingCrowdloanCandidates, 
         siblingBidCandidates, 
         ownCrowdloanRaised,
-        ownCrowdloanStartBlockNum,
+        currentAuctionId,
         currentAuction,
         isSignificant
     );

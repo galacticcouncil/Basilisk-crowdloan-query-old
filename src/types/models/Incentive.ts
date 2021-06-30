@@ -14,9 +14,9 @@ export class Incentive implements Entity {
 
     public blockNum: number;
 
-    public bsxMultiplier: number;
+    public bsxMultiplier: string;
 
-    public hdxBonus: number;
+    public hdxBonus: string;
 
     public significant: boolean;
 

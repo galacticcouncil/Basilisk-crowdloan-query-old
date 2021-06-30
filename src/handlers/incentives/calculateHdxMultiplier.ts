@@ -58,5 +58,8 @@ export const calculateHdxMultiplier = (siblingParachainValuation, ownParachainVa
      * Unless any of the specific reward multiplier calculation conditions were met,
      * calculate the appropriate HDX reward multiplier depending on the % lead of our own auction.
      */
-    return hdxBonusScale(leadPercentageDiff)
+    const hdxMultiplier = hdxBonusScale(leadPercentageDiff);
+
+    logger.info(`HDX multiplier is ${hdxMultiplier}`)
+    return hdxMultiplier
 };

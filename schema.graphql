@@ -155,8 +155,8 @@ type AggregatedParachainBid @entity {
 type Incentive @entity {
   id: ID!
   blockNum: Int! @index
-  bsxMultiplier: Int! 
-  hdxBonus: Int!
+  bsxMultiplier: String! 
+  hdxBonus: String!
   significant: Boolean! @index
   siblingParachainId: String @index
 }
