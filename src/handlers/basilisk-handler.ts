@@ -204,6 +204,10 @@ const calculateIncentives = (
         hdxBonus: `${hdxMultiplier}`,
         significant: isSignificant
     })
+
+    const chronicle = await Chronicle.get(ChronicleKey);
+    chronicle.lastSignificantIncentive = blockNum
+    await chronicle.save()
 }
 
 /**
