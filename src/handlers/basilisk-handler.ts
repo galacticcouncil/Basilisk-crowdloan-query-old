@@ -16,7 +16,7 @@ import { calculateBsxMultiplier } from "./incentives/calculateBsxMultiplier";
 // for testing purposes only
 const karuraParaId = "2000-Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK"
 const moonriverParaId = "2023-FFuCbRwsDTkj1cc2w6dvBmXvumyoZR6QgfAv1LwL3kBgmbX"
-const shidenParaID = "2007-Ekf4HssuTpYjmUEvzy9AAFuqpUcNm9AAkrMF1stTU6Mo1hR-0"
+const shidenParaID = "2007-Ekf4HssuTpYjmUEvzy9AAFuqpUcNm9AAkrMF1stTU6Mo1hR"
 // const basiliskParaId = ""
 
 // configuration

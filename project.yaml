@@ -23,7 +23,9 @@ dataSources:
     kind: substrate/Runtime
     filter: 
       specName: kusama
-    startBlock: 7828000
+    # startBlock: 7828000
+    # first crowdloan registred shortly after
+    startBlock: 7828250 
     mapping:
       handlers: 
       - handler: handleBlock
