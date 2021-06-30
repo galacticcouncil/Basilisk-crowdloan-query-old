@@ -56,9 +56,30 @@ export class Bid implements Entity {
     }
 
 
+    static async getByAuctionId(auctionId: string): Promise<Bid[] | undefined>{
+      
+      const records = await store.getByField('Bid', 'auctionId', auctionId);
+      return records.map(record => Bid.create(record));
+      
+    }
+
     static async getByWinningAuction(winningAuction: number): Promise<Bid[] | undefined>{
       
       const records = await store.getByField('Bid', 'winningAuction', winningAuction);
+      return records.map(record => Bid.create(record));
+      
+    }
+
+    static async getByParachainId(parachainId: string): Promise<Bid[] | undefined>{
+      
+      const records = await store.getByField('Bid', 'parachainId', parachainId);
+      return records.map(record => Bid.create(record));
+      
+    }
+
+    static async getByFundId(fundId: string): Promise<Bid[] | undefined>{
+      
+      const records = await store.getByField('Bid', 'fundId', fundId);
       return records.map(record => Bid.create(record));
       
     }

@@ -34,7 +34,7 @@ export const handleAuctionStarted = async (substrateEvent: SubstrateEvent) => {
   chronicle.curAuctionId = auctionId.toString();
   await chronicle.save();
 
-  logger.info(`Auction ${auctionId} saved`);
+  //logger.info(`Auction ${auctionId} saved`);
 };
 
 export const handleAuctionClosed = async (substrateEvent: SubstrateEvent) => {
@@ -54,7 +54,7 @@ export const handleAuctionWinningOffset = async (substrateEvent: SubstrateEvent)
   const [auctionId, offsetBlock] = event.data.toJSON() as [number, number];
   const auction = await Auction.get(auctionId.toString());
   auction.resultBlock = auction.closingStart + offsetBlock;
-  logger.info(`Update auction ${auctionId} winning offset: ${auction.resultBlock}`);
+  //logger.info(`Update auction ${auctionId} winning offset: ${auction.resultBlock}`);
   await auction.save();
 };
 
@@ -66,7 +66,7 @@ const markLosingBids = async (auctionId: number, slotStart: number, slotEnd: num
   for (const bid of losingBids) {
     bid.winningAuction = null;
     await bid.save();
-    logger.info(`Mark Bid as losing bid ${bid.id}`);
+    //logger.info(`Mark Bid as losing bid ${bid.id}`);
   }
 };
 
@@ -84,7 +84,7 @@ const markParachainLeases = async (
   for (const lease of losingLeases) {
     lease.activeForAuction = null;
     await lease.save();
-    logger.info(`Mark losing parachain leases ${lease.paraId} for ${lease.leaseRange}`);
+    //logger.info(`Mark losing parachain leases ${lease.paraId} for ${lease.leaseRange}`);
   }
   await Storage.upsert('ParachainLeases', `${paraId}-${leaseRange}`, {
     paraId,
@@ -138,9 +138,9 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
     bidder: isFund ? null : from
   };
 
-  logger.info(`Bid detail: ${JSON.stringify(bid, null, 2)}`);
+  //logger.info(`Bid detail: ${JSON.stringify(bid, null, 2)}`);
   const { id: bidId } = await Storage.save('Bid', bid);
-  logger.info(`Bid saved: ${bidId}`);
+  //logger.info(`Bid saved: ${bidId}`);
 
   await markParachainLeases(auctionId, paraId, firstSlot, lastSlot, bidAmount);
 
@@ -158,7 +158,7 @@ export const handleBidAccepted = async (substrateEvent: SubstrateEvent) => {
       createdAt,
       blockNum
     });
-    logger.info(`Create AuctionParachain: ${id}`);
+    //logger.info(`Create AuctionParachain: ${id}`);
   }
 };
 

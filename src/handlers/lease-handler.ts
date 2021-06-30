@@ -17,7 +17,7 @@ export const handleNewLeasePeriod = async (substrateEvent: SubstrateEvent) => {
     curLeaseStart: blockNum,
     curLeaseEnd: blockNum + leasePeriod - 1
   });
-  logger.info('Update new lease period on Chronicle');
+  //logger.info('Update new lease period on Chronicle');
 };
 
 export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
@@ -36,22 +36,20 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   const lastLease = firstLease + leaseCount - 1;
 
   if (IgnoreParachainIds.includes(paraId)) {
-    logger.info(`Ignore testing parachain ${paraId}`);
+    //logger.info(`Ignore testing parachain ${paraId}`);
     return;
   }
 
   const { id: parachainId } = await Storage.ensureParachain(paraId);
   const totalUsed = parseNumber(total);
   const extraAmount = parseNumber(extra);
-  logger.info(
-    `Slot leased, with ${JSON.stringify({ paraId, from, firstLease, lastLease, extra, total, parachainId }, null, 2)}`
-  );
+  //logger.info(`Slot leased, with ${JSON.stringify({ paraId, from, firstLease, lastLease, extra, total, parachainId }, null, 2)}`);
 
   const [ongoingAuction] = await Auction.getByOngoing(true);
   const curAuction = ongoingAuction || { id: 'unknown', resultBlock: blockNum, leaseEnd: null };
 
   if (curAuction.id === 'unknown') {
-    logger.info('No active auction found, sudo or system parachain, upsert unknown Auction');
+    //logger.info('No active auction found, sudo or system parachain, upsert unknown Auction');
     await Storage.upsert('Auction', 'unknown', {
       id: 'unknown',
       blockNum,
@@ -73,7 +71,7 @@ export const handleSlotsLeased = async (substrateEvent: SubstrateEvent) => {
   }
 
   const { id: auctionId, resultBlock } = curAuction;
-  logger.info(`Resolved auction id ${curAuction.id}, resultBlock: ${curAuction.id}, ${curAuction.resultBlock}`);
+  //logger.info(`Resolved auction id ${curAuction.id}, resultBlock: ${curAuction.id}, ${curAuction.resultBlock}`);
 
   await Storage.upsert('ParachainLeases', `${paraId}-${auctionId || 'sudo'}-${firstLease}-${lastLease}`, {
     paraId,

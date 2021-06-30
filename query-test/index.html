@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        fetch('http://localhost:3000', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({query: `
+                {
+                    query {
+                        ownCrowdloanRaised: crowdloans(filter:{
+                            parachainId: {
+                            equalTo: "2023-FFuCbRwsDTkj1cc2w6dvBmXvumyoZR6QgfAv1LwL3kBgmbX"
+                            }
+                        }){
+                            nodes{
+                            raised,
+                            cap,
+                            contributions{
+                                nodes{
+                                blockNum,
+                                amount
+                                }
+                            }
+                            }
+                        }
+                    }
+                }  
+            `})
+            })
+            .then(r => r.json())
+            .then(data => console.log('data returned:', data));
+
+        const totalKsmContributed = 1000
+        const alice = {
+            ksmContributed: 250,
+            multiplier: 1
+        }
+        const alice2 = {
+            ksmContributed: 250,
+            multiplier: 0.8
+        }
+        const bob = {
+            ksmContributed: 500,
+            multiplier: 0.8
+        }
+
+        const aliceWeight = alice.ksmContributed * alice.multiplier + alice2.ksmContributed * alice2.multiplier
+        const bobWeight = bob.ksmContributed * bob.multiplier
+
+        const totalWeight = bobWeight + aliceWeight
+        const aliceReward = totalKsmContributed / totalWeight * aliceWeight
+
+        console.log(aliceReward)
+    </script>
+</body>
+</html>

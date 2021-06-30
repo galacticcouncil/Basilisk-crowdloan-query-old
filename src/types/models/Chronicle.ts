@@ -22,6 +22,12 @@ export class Chronicle implements Entity {
 
     public curLeaseEnd?: number;
 
+    public lastAggregatedBalanceBlockNum?: number;
+
+    public lastAggregatedBidsBlockNum?: number;
+
+    public lastSignificantIncentive?: number;
+
 
     async save(): Promise<void>{
         let id = this.id;

@@ -7,7 +7,8 @@
     "prebuild": "npm run codegen",
     "build": "tsc -b",
     "prepack": "rm -rf dist && npm build",
-    "test": "jest",
+    "test": "mocha --require ts-node/register test/**/*.ts",
+    "test:watch": "mocha --require ts-node/register --watch --watch-files src, test/**/*.ts",
     "prestart": "npm run build",
     "predebug": "npm run build",
     "start": "subql-node -f ./ --batch-size 200 -- --unhandled-rejections=strict --trace-warnings",
@@ -26,8 +27,13 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@polkadot/api": "^4.15.1",
-    "@subql/cli": "next",
-    "@subql/types": "next",
+    "@subql/cli": "^0.9.3",
+    "@subql/node": "^0.16.1",
+    "@subql/types": "^0.8.0",
+    "@types/chai": "^4.2.19",
+    "@types/mocha": "^8.2.2",
+    "chai": "^4.3.4",
+    "ts-mocha": "^8.0.0",
     "typescript": "^4.1.3"
   },
   "resolutions": {
@@ -35,6 +41,12 @@
     "@subql/node": "^0.16"
   },
   "dependencies": {
-    "@subql/node": "^0.16.1"
+    "@types/d3": "^6.7.3",
+    "@types/d3-scale": "^3.3.0",
+    "bignumber.js": "^9.0.1",
+    "d3-scale": "^4.0.0",
+    "linear-scale": "^0.0.3",
+    "lodash": "^4.17.21",
+    "simple-linear-scale": "^1.0.1"
   }
 }

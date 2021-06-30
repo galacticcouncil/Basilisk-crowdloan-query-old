@@ -48,6 +48,13 @@ export class Parachain implements Entity {
     }
 
 
+    static async getByDeregistered(deregistered: boolean): Promise<Parachain[] | undefined>{
+      
+      const records = await store.getByField('Parachain', 'deregistered', deregistered);
+      return records.map(record => Parachain.create(record));
+      
+    }
+
 
     static create(record){
         let entity = new Parachain(record.id);

@@ -15,7 +15,7 @@ export const getParachainId = async (paraId: number | ParachainReturn) => {
 
 export const fetchParachain = async (paraId: number): Promise<ParachainReturn | null> => {
   const parachain = (await api.query.registrar.paras(paraId)).toJSON() as unknown;
-  logger.info(`Fetched parachain ${paraId}: ${JSON.stringify(parachain, null, 2)}`);
+  //logger.info(`Fetched parachain ${paraId}: ${JSON.stringify(parachain, null, 2)}`);
   return parachain as ParachainReturn | null;
 };
 

@@ -5,6 +5,7 @@ import { Crowdloan } from '../types/models/Crowdloan';
 import { Chronicle } from '../types/models/Chronicle';
 import { parseNumber } from '../utils';
 import { CrowdloanStatus } from '../types';
+import { AggregatedCrowdloanBalance } from '../types/models/AggregatedCrowdloanBalance';
 
 interface ParaInfo {
   manager: string;
@@ -28,7 +29,7 @@ export const handleParachainRegistered = async (substrateEvent: SubstrateEvent) 
     creationBlockNum: blockNum,
     deregistered: false
   });
-  logger.info(`new Parachain saved: ${JSON.stringify(parachain, null, 2)}`);
+  //logger.info(`new Parachain saved: ${JSON.stringify(parachain, null, 2)}`);
 };
 
 export const handleCrowdloanCreated = async (substrateEvent: SubstrateEvent) => {
@@ -38,7 +39,7 @@ export const handleCrowdloanCreated = async (substrateEvent: SubstrateEvent) => 
   const [fundIdx] = event.data.toJSON() as [number];
   await Storage.ensureParachain(fundIdx);
   const fund = await Storage.ensureFund(fundIdx, { blockNum });
-  logger.info(`Create Crowdloan: ${JSON.stringify(fund, null, 2)}`);
+  //logger.info(`Create Crowdloan: ${JSON.stringify(fund, null, 2)}`);
 };
 
 export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent) => {
@@ -50,7 +51,7 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
   const amtValue = typeof amount === 'string' ? parseNumber(amount) : amount;
   await Storage.ensureParachain(fundIdx);
 
-  logger.info(event.toHuman());
+  //logger.info(event.toHuman());
 
   const { id: fundId, parachainId } = await Storage.ensureFund(fundIdx);
   const contribution = {
@@ -63,7 +64,7 @@ export const handleCrowdloanContributed = async (substrateEvent: SubstrateEvent)
     blockNum
   };
 
-  logger.info(`contribution for ${JSON.stringify(contribution, null, 2)}`);
+  //logger.info(`contribution for ${JSON.stringify(contribution, null, 2)}`);
   await Storage.save('Contribution', contribution);
 };
 
@@ -74,13 +75,13 @@ export const updateCrowdloanStatus = async (block: SubstrateBlock) => {
   for (const fund of funds) {
     if (fund.status === CrowdloanStatus.STARTED && blockNum >= fund.lockExpiredBlock) {
       fund.status = CrowdloanStatus.RETIRING;
-      logger.info(`Fund ${fund.id} status change from Started to Retiring`);
+      //logger.info(`Fund ${fund.id} status change from Started to Retiring`);
       await fund.save();
     }
 
     if (fund.status === CrowdloanStatus.WON && blockNum >= fund.lockExpiredBlock) {
       fund.status = CrowdloanStatus.RETIRING;
-      logger.info(`Fund ${fund.id} status change from Won to Retiring`);
+      //logger.info(`Fund ${fund.id} status change from Won to Retiring`);
       await fund.save();
     }
   }

@@ -26,7 +26,7 @@ type Parachain @entity {
   paraId: Int!
   createdAt: Date
   creationBlock: Int
-  deregistered: Boolean!
+  deregistered: Boolean! @index
   deposit: BigInt!
   manager: String!
   leases: [ParachainLeases] @derivedFrom(field: "parachain")
@@ -39,7 +39,7 @@ type Parachain @entity {
 
 type Crowdloan @entity {
   id: ID! # generated fund address
-  parachain: Parachain!
+  parachain: Parachain! @index
   depositor: String!
   verifier: String
   cap: BigInt!
@@ -56,6 +56,9 @@ type Crowdloan @entity {
   isFinished: Boolean @index
   wonAuctionId: String @index 
   contributions: [Contribution] @derivedFrom(field: "fund")
+  # list of past balances a.k.a. funds raised aggregated every several blocks
+  aggregatedBalances: [AggregatedCrowdloanBalance] @derivedFrom(field: "fund")
+  aggregatedBids: [AggregatedParachainBid] @derivedFrom(field: "fund")
 }
 
 type AuctionParachain @entity {
@@ -88,13 +91,13 @@ type ParachainLeases @entity {
 
 type Bid @entity {
   id: ID!
-  auction: Auction!
+  auction: Auction! @index
   winningAuction: Int @index # auctionId
   blockNum: Int!
-  parachain: Parachain!
+  parachain: Parachain! @index
   isCrowdloan: Boolean!
   amount: BigInt!
-  fund: Crowdloan
+  fund: Crowdloan @index
   firstSlot: Int!
   lastSlot: Int!
   bidder: String
@@ -117,7 +120,10 @@ type Chronicle @entity {
   curBlockNum: Int
   curLease: Int
   curLeaseStart: Int
-  curLeaseEnd: Int
+  curLeaseEnd: Int,
+  lastAggregatedBalanceBlockNum: Int
+  lastAggregatedBidsBlockNum: Int
+  lastSignificantIncentive: Int
   parachains: [Parachain] @derivedFrom(field: "chronicle")
 }
 
@@ -126,4 +132,31 @@ type CrowdloanSequence @entity {
   curIndex: Int!
   createdAt: Date!
   blockNum: Int!
+}
+
+type AggregatedCrowdloanBalance @entity {
+  id: ID!
+  parachain: Parachain!
+  fund: Crowdloan! @index
+  raised: BigInt!
+  blockNum: Int!
+  createdAt: Date!
+}
+
+type AggregatedParachainBid @entity {
+  id: ID!
+  parachain: Parachain! @index
+  fund: Crowdloan @index
+  amount: BigInt!
+  blockNum: Int!
+  createdAt: Date!
+}
+
+type Incentive @entity {
+  id: ID!
+  blockNum: Int! @index
+  bsxMultiplier: Int! 
+  hdxBonus: Int!
+  significant: Boolean! @index
+  siblingParachainId: String @index
 }

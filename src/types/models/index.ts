@@ -20,3 +20,9 @@ export {Chronicle} from "./Chronicle"
 
 export {CrowdloanSequence} from "./CrowdloanSequence"
 
+export {AggregatedCrowdloanBalance} from "./AggregatedCrowdloanBalance"
+
+export {AggregatedParachainBid} from "./AggregatedParachainBid"
+
+export {Incentive} from "./Incentive"
+

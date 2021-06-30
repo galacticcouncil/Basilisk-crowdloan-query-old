@@ -66,6 +66,13 @@ export class Crowdloan implements Entity {
     }
 
 
+    static async getByParachainId(parachainId: string): Promise<Crowdloan[] | undefined>{
+      
+      const records = await store.getByField('Crowdloan', 'parachainId', parachainId);
+      return records.map(record => Crowdloan.create(record));
+      
+    }
+
     static async getByStatus(status: string): Promise<Crowdloan[] | undefined>{
       
       const records = await store.getByField('Crowdloan', 'status', status);

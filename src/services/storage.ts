@@ -44,7 +44,7 @@ export const upsert = async <T extends Entity>(
 };
 
 export const ensureParachain = async (paraId: number): Promise<Parachain> => {
-  logger.info(`Fetch parachain by ${paraId}`);
+  //logger.info(`Fetch parachain by ${paraId}`);
   const { manager, deposit } = await fetchParachain(paraId);
   const parachainId = `${paraId}-${manager}`;
   return upsert('Parachain', parachainId, { id: parachainId, paraId, manager, deposit, deregistered: false });
@@ -53,10 +53,10 @@ export const ensureParachain = async (paraId: number): Promise<Parachain> => {
 export const ensureFund = async (paraId: number, modifier?: Record<string, any>): Promise<Crowdloan> => {
   const fund = await fetchCrowdloan(paraId);
   const parachainId = await getParachainId(paraId);
-  logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
+  //logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
   const fundId = await getLatestCrowdloanId(parachainId);
   const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } = fund;
-  logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
+  //logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
 
   return upsert<Crowdloan>('Crowdloan', fundId, null, (cur: Crowdloan) => {
     return !cur
