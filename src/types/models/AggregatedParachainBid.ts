@@ -14,6 +14,8 @@ export class AggregatedParachainBid implements Entity {
 
     public parachainId: string;
 
+    public auctionId: string;
+
     public fundId?: string;
 
     public amount: bigint;
@@ -21,6 +23,8 @@ export class AggregatedParachainBid implements Entity {
     public blockNum: number;
 
     public createdAt: Date;
+
+    public isSignificant?: boolean;
 
 
     async save(): Promise<void>{
@@ -51,9 +55,23 @@ export class AggregatedParachainBid implements Entity {
       
     }
 
+    static async getByAuctionId(auctionId: string): Promise<AggregatedParachainBid[] | undefined>{
+      
+      const records = await store.getByField('AggregatedParachainBid', 'auctionId', auctionId);
+      return records.map(record => AggregatedParachainBid.create(record));
+      
+    }
+
     static async getByFundId(fundId: string): Promise<AggregatedParachainBid[] | undefined>{
       
       const records = await store.getByField('AggregatedParachainBid', 'fundId', fundId);
+      return records.map(record => AggregatedParachainBid.create(record));
+      
+    }
+
+    static async getByIsSignificant(isSignificant: boolean): Promise<AggregatedParachainBid[] | undefined>{
+      
+      const records = await store.getByField('AggregatedParachainBid', 'isSignificant', isSignificant);
       return records.map(record => AggregatedParachainBid.create(record));
       
     }

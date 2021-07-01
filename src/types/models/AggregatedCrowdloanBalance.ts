@@ -22,6 +22,8 @@ export class AggregatedCrowdloanBalance implements Entity {
 
     public createdAt: Date;
 
+    public isSignificant?: boolean;
+
 
     async save(): Promise<void>{
         let id = this.id;

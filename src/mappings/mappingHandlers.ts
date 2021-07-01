@@ -47,7 +47,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
   await updateCrowdloanStatus(block);
   await aggregateCrowdloanBalances(block);
   await aggregateAuctionBids(block);
-  await determineIncentives(block)
+  // await determineIncentives(block)
   //logger.info(`done handling block ${block.block.header.number.toNumber()}`)
 }
 

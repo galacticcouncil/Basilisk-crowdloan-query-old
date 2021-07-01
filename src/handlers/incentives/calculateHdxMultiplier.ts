@@ -36,6 +36,8 @@ export const calculateHdxMultiplier = (siblingParachainValuation, ownParachainVa
         return incentivesConfig.hdx.scale.rewardMultiplier.min;
     }
 
+    logger.info(`Calculating HDX multiplier for own: ${ownParachainValuation} and sibling: ${siblingParachainValuation}`)
+
     /**
      * Calculate the % diff for which our own auction is winning,
      * relative to the amount raised by our own auction.

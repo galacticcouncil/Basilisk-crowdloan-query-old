@@ -34,37 +34,36 @@ export const aggregateCrowdloanBalances = async (block: SubstrateBlock) => {
     //logger.info(`Aggregating fund balances`);
     const blockNum = block.block.header.number.toNumber();
     const chronicle = await Chronicle.get(ChronicleKey);
-    const blocksSinceLastAggregation = blockNum - (chronicle.lastAggregatedBalanceBlockNum || 0);
+    const blocksSinceLastAggregation = blockNum - (chronicle.lastSignificantAggregatedParachainBid || 0);
+    const isSignificant = blocksSinceLastAggregation >= aggregationDuration;
 
-    //logger.info(`Blocks since last aggregation: ${blocksSinceLastAggregation}`)
-    if (blocksSinceLastAggregation >= aggregationDuration) {
-        //logger.info(`Aggregating fund balances for block ${blockNum}`);
-        // save the current aggregation blockNum to the chronicle
-        chronicle.lastAggregatedBalanceBlockNum = blockNum;
+    if (isSignificant) {
+        chronicle.lastSignificantAggregatedCrowdloanBalance = blockNum;
         await chronicle.save();
+    }
 
-        /**
-         * isFinished = true, only if the crowdloan has been dissolved,
-         * which is a long time from now
-         */
-        const funds = (await Crowdloan.getByIsFinished(false) || [])
-        
-        // for every fund, save the latest balance/raised
-        for (const fund of funds) {
-            const { raised, parachainId } = fund;
-            const fundId = fund.id;
+    /**
+     * isFinished = true, only if the crowdloan has been dissolved,
+     * which is a long time from now
+     */
+    const funds = (await Crowdloan.getByIsFinished(false) || [])
+    
+    // for every fund, save the latest balance/raised
+    for (const fund of funds) {
+        const { raised, parachainId } = fund;
+        const fundId = fund.id;
 
-            //logger.info(`Aggregating fund balances for parachainId: ${parachainId}`);
+        //logger.info(`Aggregating fund balances for parachainId: ${parachainId}`);
 
-            const aggregatedCrowdloanBalanceId = `${fundId}-${blockNum}`
-            await upsert('AggregatedCrowdloanBalance', aggregatedCrowdloanBalanceId, {
-                id: aggregatedCrowdloanBalanceId,
-                raised: raised,
-                fundId,
-                parachainId,
-                blockNum,
-            })
-        }
+        const aggregatedCrowdloanBalanceId = `${fundId}-${blockNum}`
+        await upsert('AggregatedCrowdloanBalance', aggregatedCrowdloanBalanceId, {
+            id: aggregatedCrowdloanBalanceId,
+            raised: raised,
+            fundId,
+            parachainId,
+            blockNum,
+            isSignificant
+        })
     }
 }
 
@@ -76,43 +75,41 @@ export const aggregateAuctionBids = async (block: SubstrateBlock) => {
     //logger.info(`Aggregating parachain bids`);
     const blockNum = block.block.header.number.toNumber();
     const chronicle = await Chronicle.get(ChronicleKey);
-    const blocksSinceLastAggregation = blockNum - (chronicle.lastAggregatedBidsBlockNum || 0);
+    const blocksSinceLastAggregation = blockNum - (chronicle.lastSignificantAggregatedParachainBid || 0);
+    const isSignificant = blocksSinceLastAggregation >= aggregationDuration;
 
-    //logger.info(`Blocks since last aggregation: ${blocksSinceLastAggregation}`)
-    if (blocksSinceLastAggregation >= aggregationDuration) {
-        //logger.info(`Aggregating parachain bids for block ${blockNum}`);
-        
-        // save the current aggregation blockNum to the chronicle
-        chronicle.lastAggregatedBidsBlockNum = blockNum;
+    if (isSignificant) {
+        chronicle.lastSignificantAggregatedParachainBid = blockNum;
         await chronicle.save();
+    }
 
-        const parachains = (await Parachain.getByDeregistered(false) || [])
+    const parachains = (await Parachain.getByDeregistered(false) || [])
+    // for every parachain, save the latest/highest bid
+    for (const parachain of parachains) {
+        const parachainId = parachain.id;
+        const fundId = await Storage.getLatestCrowdloanId(parachainId)
         
-        // for every parachain, save the latest/highest bid
-        for (const parachain of parachains) {
-            const parachainId = parachain.id;
-            const fundId = await Storage.getLatestCrowdloanId(parachainId)
-            
-            //logger.info(`Aggregating parachain bids for parachainId: ${parachainId}`);
+        //logger.info(`Aggregating parachain bids for parachainId: ${parachainId}`);
 
-            const bids = (await Bid.getByParachainId(parachainId) || [])
-            const sortedBids = orderBy(bids, ['amount'], ['desc']);
-            const highestBid = sortedBids[0]
+        const bids = (await Bid.getByParachainId(parachainId) || [])
+        const sortedBids = orderBy(bids, ['amount'], ['desc']);
+        const highestBid = sortedBids[0]
 
-            if (highestBid && highestBid.amount) {
-                const highestBidAmount = highestBid.amount;
-                const aggregatedParachainBidId = `${parachainId}-${blockNum}`
+        if (highestBid && highestBid.amount) {
+            const highestBidAmount = highestBid.amount;
+            const highestBidAuctionId = highestBid.auctionId;
+            const aggregatedParachainBidId = `${parachainId}-${blockNum}`
 
-                await upsert('AggregatedParachainBid', aggregatedParachainBidId, {
-                    id: aggregatedParachainBidId,
-                    amount: highestBidAmount,
-                    parachainId,
-                    fundId,
-                    blockNum,
-                })
-            } 
-            
-        }
+            await upsert('AggregatedParachainBid', aggregatedParachainBidId, {
+                id: aggregatedParachainBidId,
+                amount: highestBidAmount,
+                auctionId: highestBidAuctionId,
+                parachainId,
+                fundId,
+                blockNum,
+                isSignificant
+            })
+        }  
     }
 }
 
@@ -165,7 +162,7 @@ const calculateIncentives = (
     // first or second crowdloan/bid candidate
     candidateOffset,
 ) => {
-    const siblingCrowdloanCandidate = siblingCrowdloanCandidates[candidateOffset]; // second largest crowdloan
+    const siblingCrowdloanCandidate = siblingCrowdloanCandidates[candidateOffset]
     const siblingCrowdloanCandidateRaised = (siblingCrowdloanCandidate && siblingCrowdloanCandidate.raised) || 0;
     const siblingCrowdloanCandidateParachainId = (siblingCrowdloanCandidate && siblingCrowdloanCandidate.parachainId);
 
@@ -266,8 +263,9 @@ export const determineIncentives = async (block: SubstrateBlock) => {
      * this is due to the first crowdloan/bid winning the prior auction, and not being
      * a competitor anymore in the auction we're targeting
      */
+    logger.info(`current auctionId ${currentAuctionId}, target auction id ${targetAuctionId}, ${parseInt(currentAuctionId) < parseInt(targetAuctionId)}`)
     if (parseInt(currentAuctionId) < parseInt(targetAuctionId)) {
-        await calculateFinalIncentives(1)
+        await calculateFinalIncentives(1) 
     } else {
         // We're in the target auction, or in an auction after the target auction
         await calculateFinalIncentives(0)

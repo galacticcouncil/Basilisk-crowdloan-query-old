@@ -22,9 +22,9 @@ export class Chronicle implements Entity {
 
     public curLeaseEnd?: number;
 
-    public lastAggregatedBalanceBlockNum?: number;
+    public lastSignificantAggregatedCrowdloanBalance?: number;
 
-    public lastAggregatedBidsBlockNum?: number;
+    public lastSignificantAggregatedParachainBid?: number;
 
     public lastSignificantIncentive?: number;
 

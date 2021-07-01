@@ -121,8 +121,8 @@ type Chronicle @entity {
   curLease: Int
   curLeaseStart: Int
   curLeaseEnd: Int,
-  lastAggregatedBalanceBlockNum: Int
-  lastAggregatedBidsBlockNum: Int
+  lastSignificantAggregatedCrowdloanBalance: Int
+  lastSignificantAggregatedParachainBid: Int
   lastSignificantIncentive: Int
   parachains: [Parachain] @derivedFrom(field: "chronicle")
 }
@@ -141,15 +141,18 @@ type AggregatedCrowdloanBalance @entity {
   raised: BigInt!
   blockNum: Int!
   createdAt: Date!
+  isSignificant: Boolean
 }
 
 type AggregatedParachainBid @entity {
   id: ID!
   parachain: Parachain! @index
+  auction: Auction! @index
   fund: Crowdloan @index
   amount: BigInt!
   blockNum: Int!
   createdAt: Date!
+  isSignificant: Boolean @index
 }
 
 type Incentive @entity {
