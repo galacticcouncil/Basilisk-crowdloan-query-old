@@ -61,7 +61,7 @@ export const aggregateCrowdloanBalances = async (block: SubstrateBlock) => {
             raised: raised,
             fundId,
             parachainId,
-            blockNum,
+            blockNum: blockNum - 1,
             isSignificant
         })
     }
@@ -106,7 +106,7 @@ export const aggregateAuctionBids = async (block: SubstrateBlock) => {
                 auctionId: highestBidAuctionId,
                 parachainId,
                 fundId,
-                blockNum,
+                blockNum: blockNum - 1,
                 isSignificant
             })
         }  
