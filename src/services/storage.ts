@@ -55,6 +55,7 @@ export const ensureFund = async (paraId: number, modifier?: Record<string, any>)
   const parachainId = await getParachainId(paraId);
   //logger.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
   const fundId = await getLatestCrowdloanId(parachainId);
+  if (!fund) return;
   const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } = fund;
   //logger.info(`Fund detail: ${JSON.stringify(fund, null, 2)}`);
 
